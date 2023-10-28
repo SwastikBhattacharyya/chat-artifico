@@ -1,4 +1,5 @@
 from customtkinter import CTkToplevel, CTkFrame, CTkScrollableFrame, CTkLabel, CTkEntry, CTkButton, CTkTextbox
+from src.pages.view_models.chat import ChatViewModel
 
 
 class ChatView(CTkToplevel):
@@ -8,6 +9,8 @@ class ChatView(CTkToplevel):
         self.geometry('1280x720')
         self.resizable(False, False)
         self.configure(fg_color='#30336b')
+
+        self.account_view_model: ChatViewModel = ChatViewModel()
 
         self.add_contact_frame: CTkFrame = CTkFrame(self, fg_color='#95afc0', width=300, height=170, corner_radius=0)
         self.add_contact_frame.place(x=10, y=10, anchor='nw')
@@ -30,9 +33,6 @@ class ChatView(CTkToplevel):
                                                                           height=530, corner_radius=0)
         self.contacts_list_frame.place(x=10, y=180, anchor='nw')
 
-        #for i in range(100):
-            #CTkButton(self.contacts_list_frame, height=50, text=f'Contact {i}', font=('Roboto', 15), corner_radius=0).pack(expand=True, fill='x')
-
         self.contact_frame: CTkFrame = CTkFrame(self, fg_color='#95afc0', width=960, height=60, corner_radius=0)
         self.contact_frame.place(x=310, y=10, anchor='nw')
 
@@ -43,9 +43,6 @@ class ChatView(CTkToplevel):
                                                                      corner_radius=0)
         self.messages_frame.place(x=310, y=70, anchor='nw')
 
-        #for i in range(100):
-           #CTkButton(self.messages_frame, width=400, text=f'Message {i}', font=('Roboto', 15), corner_radius=10).pack(padx=10, pady=10, anchor='e')
-
         self.typing_frame: CTkFrame = CTkFrame(self, fg_color='purple', width=960, height=60, corner_radius=0)
         self.typing_frame.place(x=310, y=650, anchor='nw')
 
@@ -55,3 +52,6 @@ class ChatView(CTkToplevel):
         self.typing_button: CTkButton = CTkButton(self.typing_frame, text='Send', font=('Roboto', 15), corner_radius=0,
                                                   fg_color='#ffbe76', hover_color='#f0932b', text_color='#130f40')
         self.typing_button.place(relx=0.8, rely=0.5, relheight=1, relwidth=0.2, anchor='w')
+
+        self.account_view_model.create_chat_box_client('Hello', self.messages_frame)
+        self.account_view_model.create_chat_box_target('Hello', self.messages_frame)
