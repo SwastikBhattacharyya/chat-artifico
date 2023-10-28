@@ -1,10 +1,11 @@
 from socket import socket, AF_INET, SOCK_STREAM, error
 from threading import Thread
-from random import randint
+from json import dumps
 
 
+PORT = int(input('Enter the port: '))
+TARGET_PORT: int = int(input('Enter the target port: '))
 HOST = '127.0.0.1'
-PORT = randint(49152, 65535)
 
 client: socket = socket(AF_INET, SOCK_STREAM)
 client.bind((HOST, PORT))
@@ -25,6 +26,14 @@ def receive() -> None:
 def send() -> None:
     while True:
         message = input()
+
+        message_dict = {
+            'sender_port': PORT,
+            'target_port': TARGET_PORT,
+            'message': message
+        }
+        message = dumps(message_dict)
+
         client.send(message.encode('utf-8'))
 
 
