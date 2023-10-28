@@ -50,8 +50,9 @@ class ChatView(CTkToplevel):
         self.typing_entry.place(relx=0, rely=0.5, anchor='w', relwidth=0.8, relheight=1)
 
         self.typing_button: CTkButton = CTkButton(self.typing_frame, text='Send', font=('Roboto', 15), corner_radius=0,
-                                                  fg_color='#ffbe76', hover_color='#f0932b', text_color='#130f40')
+                                                  fg_color='#ffbe76', hover_color='#f0932b', text_color='#130f40',
+                                                  command=lambda: self.account_view_model.send_message(
+                                                      self.typing_entry.get('1.0', 'end-1c')))
         self.typing_button.place(relx=0.8, rely=0.5, relheight=1, relwidth=0.2, anchor='w')
 
-        self.account_view_model.create_chat_box_client('Hello', self.messages_frame)
-        self.account_view_model.create_chat_box_target('Hello', self.messages_frame)
+        self.account_view_model.frame = self.messages_frame
