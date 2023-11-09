@@ -3,6 +3,7 @@ from customtkinter import CTk
 from src.pages.views.chat import ChatView
 from src.database.database_client import DatabaseClient
 from CTkMessagebox import CTkMessagebox
+from src.sockets.client import set_port
 
 
 class AccountViewModel:
@@ -21,6 +22,24 @@ class AccountViewModel:
         else:
             self.chat_view.focus()
         self.master.withdraw()
+
+    def sign_in(self):
+        users_collection = DatabaseClient.users_collection
+        user = users_collection.find_one({
+            'user_name': self.sign_in_user_name.get(),
+            'password': self.sign_in_password.get()
+        })
+
+        if user is None:
+            CTkMessagebox(title='Error', message='User name or password is incorrect.', icon='cancel')
+            return
+
+        self.sign_in_user_name.set('')
+        self.sign_in_password.set('')
+
+        set_port(user['port'])
+
+        self.open_chat_page()
 
     def sign_up(self):
         users_collection = DatabaseClient.users_collection
