@@ -59,7 +59,7 @@ class AccountView(CTk):
                                                          textvariable=self.view_model.sign_up_password)
         self.sing_up_password_entry.pack(padx=10, pady=5, anchor='nw', fill='x')
 
-        self.sing_up_button: CTkButton = CTkButton(self.tab_view.tab('Sign Up'), text='Sign Up', font=('Roboto', 15),
-                                                   fg_color='#7ed6df', hover_color='#22a6b3', text_color='#130f40',
-                                                   height=40)
+        self.sing_up_button: CTkButton = CTkButton(self.tab_view.tab('Sign Up'), command=self.view_model.sign_up,
+                                                   text='Sign Up', font=('Roboto', 15), fg_color='#7ed6df',
+                                                   hover_color='#22a6b3', text_color='#130f40', height=40)
         self.sing_up_button.pack(padx=10, pady=(20, 5), expand=True, fill='x')
