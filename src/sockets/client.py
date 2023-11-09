@@ -13,6 +13,11 @@ RECEIVE_MESSAGE_DELEGATE_TARGET: Callable[[str], None] | None = None
 RECEIVE_MESSAGE_DELEGATE_CLIENT: Callable[[str], None] | None = None
 
 
+def set_port(port: int) -> None:
+    global PORT
+    PORT = port
+
+
 def receive() -> None:
     while True:
         try:
@@ -45,7 +50,6 @@ def start(receive_message_delegate_target: Callable[[str], None],
     RECEIVE_MESSAGE_DELEGATE_TARGET = receive_message_delegate_target
     RECEIVE_MESSAGE_DELEGATE_CLIENT = receive_message_delegate_client
 
-    PORT = int(input('Enter the port: '))
     TARGET_PORT = int(input('Enter the target port: '))
     HOST = '127.0.0.1'
 
