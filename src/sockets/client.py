@@ -19,6 +19,11 @@ def set_port(port: int) -> None:
     PORT = port
 
 
+def set_target_port(target_port: int) -> None:
+    global TARGET_PORT
+    TARGET_PORT = target_port
+
+
 def receive() -> None:
     while running:
         try:
@@ -51,7 +56,6 @@ def start(receive_message_delegate_target: Callable[[str], None],
     RECEIVE_MESSAGE_DELEGATE_TARGET = receive_message_delegate_target
     RECEIVE_MESSAGE_DELEGATE_CLIENT = receive_message_delegate_client
 
-    TARGET_PORT = int(input('Enter the target port: '))
     HOST = '127.0.0.1'
 
     client = socket(AF_INET, SOCK_STREAM)

@@ -1,5 +1,5 @@
 from customtkinter import CTkScrollableFrame, CTkButton
-from src.sockets.client import start, send, stop
+from src.sockets.client import start, send, stop, set_target_port
 from textwrap import wrap
 from src.widgets.user_chat_button import UserChatButton
 from src.database.database_client import DatabaseClient
@@ -21,6 +21,11 @@ class ChatViewModel:
     def send_message(self, message: str):
         send(message)
 
+
+    def enter_chat(self, user_name: str):
+        self.destroy_chat_boxes()
+        set_target_port(DatabaseClient.users_collection.find_one({'user_name': user_name})['port'])
+
     def destroy_chat_boxes(self):
         for chat_box in self.chat_boxes:
             chat_box.destroy()
@@ -31,8 +36,10 @@ class ChatViewModel:
             CTkMessagebox(title='Error', message='User not found', icon='cancel')
             return
 
-        UserChatButton(self.contacts_list_frame, user_name, command=self.destroy_chat_boxes).pack(pady=(0, 1),
-                                                                                                  expand=True, fill='x')
+        button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
+        button.configure(command=lambda: self.enter_chat(button.user_name))
+
+        button.pack(pady=(0, 1), expand=True, fill='x')
 
     def create_chat_box_client(self, message: str):
         message = '\n'.join(wrap(message, 60))
