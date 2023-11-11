@@ -2,6 +2,8 @@ from customtkinter import CTkScrollableFrame, CTkButton
 from src.sockets.client import start, send, stop
 from textwrap import wrap
 from src.widgets.user_chat_button import UserChatButton
+from src.database.database_client import DatabaseClient
+from CTkMessagebox import CTkMessagebox
 
 
 class ChatViewModel:
@@ -25,6 +27,10 @@ class ChatViewModel:
         self.chat_boxes = []
 
     def add_contact(self, user_name: str):
+        if DatabaseClient.users_collection.find_one({'user_name': user_name}) is None:
+            CTkMessagebox(title='Error', message='User not found', icon='cancel')
+            return
+
         UserChatButton(self.contacts_list_frame, user_name, command=self.destroy_chat_boxes).pack(pady=(0, 1),
                                                                                                   expand=True, fill='x')
 
