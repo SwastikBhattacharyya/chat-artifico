@@ -11,6 +11,7 @@ class ChatView(CTkToplevel):
         self.configure(fg_color='#30336b')
 
         self.account_view_model: ChatViewModel = ChatViewModel()
+        self.protocol('WM_DELETE_WINDOW', self.account_view_model.stop_client)
 
         self.add_contact_frame: CTkFrame = CTkFrame(self, fg_color='#95afc0', width=300, height=170, corner_radius=0)
         self.add_contact_frame.place(x=10, y=10, anchor='nw')

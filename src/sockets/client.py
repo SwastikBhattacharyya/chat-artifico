@@ -8,6 +8,7 @@ PORT: int | None = None
 TARGET_PORT: int | None = None
 HOST = None
 client: socket | None = None
+running: bool = True
 
 RECEIVE_MESSAGE_DELEGATE_TARGET: Callable[[str], None] | None = None
 RECEIVE_MESSAGE_DELEGATE_CLIENT: Callable[[str], None] | None = None
@@ -19,7 +20,7 @@ def set_port(port: int) -> None:
 
 
 def receive() -> None:
-    while True:
+    while running:
         try:
             message = client.recv(1024)
             message_dict = loads(message.decode('utf-8'))
@@ -59,3 +60,9 @@ def start(receive_message_delegate_target: Callable[[str], None],
 
     thread_receive = Thread(target=receive)
     thread_receive.start()
+
+
+def stop() -> None:
+    global running
+    running = False
+    client.close()
