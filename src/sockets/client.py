@@ -19,6 +19,11 @@ def set_port(port: int) -> None:
     PORT = port
 
 
+def get_port() -> int:
+    global PORT
+    return PORT
+
+
 def set_target_port(target_port: int) -> None:
     global TARGET_PORT
     TARGET_PORT = target_port

@@ -40,7 +40,9 @@ class ChatView(CTkToplevel):
         self.contact_frame: CTkFrame = CTkFrame(self, fg_color='#95afc0', width=960, height=60, corner_radius=0)
         self.contact_frame.place(x=310, y=10, anchor='nw')
 
-        self.contact_frame_header: CTkLabel = CTkLabel(self.contact_frame, text='Contact', font=('Roboto', 20))
+        self.contact_frame_header: CTkLabel = CTkLabel(self.contact_frame,
+                                                       textvariable=self.account_view_model.contact_name,
+                                                       font=('Roboto', 20))
         self.contact_frame_header.place(relx=0.5, rely=0.5, anchor='center')
 
         self.messages_frame: CTkScrollableFrame = CTkScrollableFrame(self, fg_color='#130f40', width=944, height=580,
