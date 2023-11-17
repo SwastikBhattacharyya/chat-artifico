@@ -8,6 +8,7 @@ PORT: int | None = None
 TARGET_PORT: int | None = None
 HOST = None
 client: socket | None = None
+running: bool = True
 
 RECEIVE_MESSAGE_DELEGATE_TARGET: Callable[[str], None] | None = None
 RECEIVE_MESSAGE_DELEGATE_CLIENT: Callable[[str], None] | None = None
@@ -18,8 +19,18 @@ def set_port(port: int) -> None:
     PORT = port
 
 
+def get_port() -> int:
+    global PORT
+    return PORT
+
+
+def set_target_port(target_port: int) -> None:
+    global TARGET_PORT
+    TARGET_PORT = target_port
+
+
 def receive() -> None:
-    while True:
+    while running:
         try:
             message = client.recv(1024)
             message_dict = loads(message.decode('utf-8'))
@@ -50,7 +61,6 @@ def start(receive_message_delegate_target: Callable[[str], None],
     RECEIVE_MESSAGE_DELEGATE_TARGET = receive_message_delegate_target
     RECEIVE_MESSAGE_DELEGATE_CLIENT = receive_message_delegate_client
 
-    TARGET_PORT = int(input('Enter the target port: '))
     HOST = '127.0.0.1'
 
     client = socket(AF_INET, SOCK_STREAM)
@@ -59,3 +69,9 @@ def start(receive_message_delegate_target: Callable[[str], None],
 
     thread_receive = Thread(target=receive)
     thread_receive.start()
+
+
+def stop() -> None:
+    global running
+    running = False
+    client.close()
