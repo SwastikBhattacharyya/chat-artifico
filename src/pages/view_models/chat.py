@@ -5,6 +5,7 @@ from src.widgets.user_chat_button import UserChatButton
 from src.database.database_client import DatabaseClient
 from CTkMessagebox import CTkMessagebox
 from tkinter import StringVar
+from src.data.data import Data
 
 
 class ChatViewModel:
@@ -43,6 +44,14 @@ class ChatViewModel:
         if client_port == target_port:
             CTkMessagebox(title='Error', message='You cannot add yourself', icon='cancel')
             return
+
+        if user_name in Data.chats:
+            CTkMessagebox(title='Error', message='User already in contacts', icon='cancel')
+            return
+
+        Data.chats[user_name] = []
+        Data.save_data(f'{client_port}.bin')
+        print(Data.chats)
 
         button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
         button.configure(command=lambda: self.enter_chat(button.user_name))
