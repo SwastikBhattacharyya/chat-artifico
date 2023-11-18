@@ -1,6 +1,5 @@
 from customtkinter import CTkToplevel, CTkFrame, CTkScrollableFrame, CTkLabel, CTkEntry, CTkButton, CTkTextbox
 from src.pages.view_models.chat import ChatViewModel
-from src.data.data import Data
 
 
 class ChatView(CTkToplevel):
@@ -64,3 +63,5 @@ class ChatView(CTkToplevel):
 
         self.account_view_model.frame = self.messages_frame
         self.account_view_model.contacts_list_frame = self.contacts_list_frame
+
+        self.account_view_model.load_contacts()

@@ -15,6 +15,8 @@ class ChatViewModel:
         self.frame: CTkScrollableFrame | None = None
         self.contacts_list_frame: CTkScrollableFrame | None = None
         self.chat_boxes: list[CTkButton] = []
+        self.selected_user_name: str | None = None
+        print(Data.chats)
 
     def stop_client(self):
         stop()
@@ -26,6 +28,7 @@ class ChatViewModel:
     def enter_chat(self, user_name: str):
         self.destroy_chat_boxes()
         set_target_port(DatabaseClient.users_collection.find_one({'user_name': user_name})['port'])
+        self.selected_user_name = user_name
         self.contact_name.set(user_name)
 
     def destroy_chat_boxes(self):
@@ -62,6 +65,8 @@ class ChatViewModel:
         message = '\n'.join(wrap(message, 60))
         button = CTkButton(self.frame, width=400, height=50, text=message, font=('Roboto', 15), corner_radius=10)
         self.chat_boxes.append(button)
+        Data.chats[self.selected_user_name].append({'message': message, 'sender': 'client'})
+        Data.save_data(f'{get_port()}.bin')
         button.pack(padx=10, pady=10, anchor='e')
         self.frame._parent_canvas.yview_moveto('1.0')
 
@@ -69,5 +74,14 @@ class ChatViewModel:
         message = '\n'.join(wrap(message, 60))
         button = CTkButton(self.frame, width=400, height=50, text=message, font=('Roboto', 15), corner_radius=10)
         self.chat_boxes.append(button)
+        Data.chats[self.selected_user_name].append({'message': message, 'sender': 'target'})
+        Data.save_data(f'{get_port()}.bin')
         button.pack(padx=10, pady=10, anchor='w')
         self.frame._parent_canvas.yview_moveto('1.0')
+
+    def load_contacts(self):
+        for user_name in Data.chats:
+            button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
+            button.configure(command=lambda: self.enter_chat(button.user_name))
+
+            button.pack(pady=(0, 1), expand=True, fill='x')
