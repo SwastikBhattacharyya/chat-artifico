@@ -2,6 +2,7 @@ from socket import socket, AF_INET, SOCK_STREAM, error
 from threading import Thread
 from json import loads, dumps
 from pprint import pprint
+from pickle import dump, load
 
 HOST = '127.0.0.1'
 PORT = 5000
@@ -73,12 +74,28 @@ def receive() -> None:
             break
 
 
+def save_unsent_messages() -> None:
+    global unsent_messages
+    with open('unsent_messages.pickle', 'wb') as file:
+        dump(unsent_messages, file)
+
+
+def load_unsent_messages() -> None:
+    global unsent_messages
+    try:
+        with open('unsent_messages.pickle', 'rb') as file:
+            unsent_messages = load(file)
+    except FileNotFoundError:
+        unsent_messages = {}
+
+
 def command_line() -> None:
     while True:
         command: str = input('>>> ')
         if command == 'quit':
             server.close()
             print('Server closed')
+            save_unsent_messages()
             exit(0)
         elif command == 'length clients':
             print(len(clients))
@@ -88,10 +105,19 @@ def command_line() -> None:
             print(len(unsent_messages))
         elif command == 'list unsent':
             pprint(unsent_messages)
+        elif command == 'save unsent':
+            save_unsent_messages()
+            print('Unsent messages saved')
+        elif command == 'load unsent':
+            load_unsent_messages()
+            print('Unsent messages loaded')
+        else:
+            print('Invalid command')
 
 
 if __name__ == '__main__':
     print('Server started')
+    load_unsent_messages()
     receive_thread = Thread(target=receive)
     receive_thread.start()
     command_line_thread = Thread(target=command_line)
