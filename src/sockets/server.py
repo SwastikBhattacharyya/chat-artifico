@@ -1,6 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM, error
 from threading import Thread
-from json import loads
+from json import loads, dumps
 
 HOST = '127.0.0.1'
 PORT = 5000
@@ -10,6 +10,8 @@ server.bind((HOST, PORT))
 server.listen()
 
 clients: list[socket] = []
+connected_ports: list[int] = []
+unsent_messages: dict[int, list] = {}
 
 
 def broadcast(message: bytes) -> None:
@@ -21,6 +23,23 @@ def broadcast(message: bytes) -> None:
         if client.getpeername()[1] == target_port or client.getpeername()[1] == sender_port:
             client.send(message)
 
+    if target_port not in connected_ports:
+        if target_port not in unsent_messages:
+            unsent_messages[target_port] = []
+        unsent_messages[target_port].append(message)
+
+
+def broadcast_unsent(message: bytes) -> None:
+    message_dict = loads(message.decode('utf-8'))
+    message_dict['unsent'] = True
+    target_port = message_dict['target_port']
+
+    message = dumps(message_dict).encode('utf-8')
+
+    for client in clients:
+        if client.getpeername()[1] == target_port:
+            client.send(message)
+
 
 def handle_client(client: socket) -> None:
     while True:
@@ -28,6 +47,7 @@ def handle_client(client: socket) -> None:
             message = client.recv(1024)
             broadcast(message)
         except error:
+            connected_ports.remove(client.getpeername()[1])
             index = clients.index(client)
             clients.remove(client)
             client.close()
@@ -38,7 +58,13 @@ def receive() -> None:
     while True:
         client, address = server.accept()
         clients.append(client)
+        connected_ports.append(address[1])
         print(f'Connected with {address}')
+
+        if address[1] in unsent_messages:
+            for message in unsent_messages[address[1]]:
+                broadcast_unsent(message)
+            unsent_messages.pop(address[1])
         thread = Thread(target=handle_client, args=(client,))
         thread.start()
 
