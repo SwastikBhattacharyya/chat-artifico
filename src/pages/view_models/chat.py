@@ -27,7 +27,7 @@ class ChatViewModel:
         exit(0)
 
     def send_message(self, message: str):
-        send(message)
+        send(message.strip())
 
     def enter_chat(self, user_name: str):
         self.destroy_chat_boxes()
