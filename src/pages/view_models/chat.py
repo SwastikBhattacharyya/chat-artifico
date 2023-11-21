@@ -62,8 +62,7 @@ class ChatViewModel:
         Data.chats[user_name] = []
         Data.save_data(f'{client_port}.bin')
 
-        button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
-        button.configure(command=lambda: self.enter_chat(button.user_name))
+        button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name, self.enter_chat)
 
         button.pack(pady=(0, 1), expand=True, fill='x')
 
@@ -89,7 +88,6 @@ class ChatViewModel:
 
     def load_contacts(self):
         for user_name in Data.chats:
-            button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
-            button.configure(command=lambda: self.enter_chat(button.user_name))
+            button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name, self.enter_chat)
 
             button.pack(pady=(0, 1), expand=True, fill='x')
