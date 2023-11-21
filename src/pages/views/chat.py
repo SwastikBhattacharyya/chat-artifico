@@ -1,4 +1,5 @@
 from customtkinter import CTkToplevel, CTkFrame, CTkScrollableFrame, CTkLabel, CTkEntry, CTkButton, CTkTextbox
+from CTkMessagebox import CTkMessagebox
 from src.pages.view_models.chat import ChatViewModel
 
 
@@ -10,7 +11,17 @@ class ChatView(CTkToplevel):
         self.resizable(False, False)
         self.configure(fg_color='#30336b')
 
-        self.account_view_model: ChatViewModel = ChatViewModel()
+        try:
+            self.account_view_model: ChatViewModel = ChatViewModel()
+        except OSError:
+            msg_box: CTkMessagebox = CTkMessagebox(title='Error', message='Fatal Error. Could not connect you to the '
+                                                                          'server,  probably the user is already '
+                                                                          'logged in to the server.\n'
+                                                                          'Exiting the application.',
+                                                   icon='cancel')
+            msg_box.get()
+            self.destroy()
+            exit(0)
         self.protocol('WM_DELETE_WINDOW', self.account_view_model.stop_client)
 
         self.add_contact_frame: CTkFrame = CTkFrame(self, fg_color='#95afc0', width=300, height=170, corner_radius=0)
