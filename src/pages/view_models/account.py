@@ -4,6 +4,7 @@ from src.pages.views.chat import ChatView
 from src.database.database_client import DatabaseClient
 from CTkMessagebox import CTkMessagebox
 from src.sockets.client import set_port
+from src.data.data import Data
 
 
 class AccountViewModel:
@@ -33,6 +34,10 @@ class AccountViewModel:
         if user is None:
             CTkMessagebox(title='Error', message='User name or password is incorrect.', icon='cancel')
             return
+
+        file_name: str = f'{user["port"]}.bin'
+        if Data.file_exists(file_name):
+            Data.load_data(file_name)
 
         self.sign_in_user_name.set('')
         self.sign_in_password.set('')

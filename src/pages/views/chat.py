@@ -63,3 +63,5 @@ class ChatView(CTkToplevel):
 
         self.account_view_model.frame = self.messages_frame
         self.account_view_model.contacts_list_frame = self.contacts_list_frame
+
+        self.account_view_model.load_contacts()
