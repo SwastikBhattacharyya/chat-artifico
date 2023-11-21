@@ -71,10 +71,9 @@ class ChatView(CTkToplevel):
                                                   command=self.send_message)
         self.typing_button.place(relx=0.8, rely=0.5, relheight=1, relwidth=0.2, anchor='w')
 
-        # bind the enter key to the send_message function and then remove the newline character
-        self.typing_entry.bind('<Return>', lambda event: self.send_message())
-        self.typing_entry.bind('<KeyRelease-Return>', lambda event: self.typing_entry.delete(
-            'end-1c', 'end'))
+        self.typing_entry.bind('<KeyRelease-Return>', lambda event: self.send_message())
+        self.add_contact_user_name_entry.bind('<KeyRelease-Return>',
+                                              lambda event: self.account_view_model.add_contact())
 
         self.account_view_model.frame = self.messages_frame
         self.account_view_model.contacts_list_frame = self.contacts_list_frame
