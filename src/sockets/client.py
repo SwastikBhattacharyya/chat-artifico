@@ -14,7 +14,8 @@ running: bool = True
 
 RECEIVE_MESSAGE_DELEGATE_TARGET: Callable[[str], None] | None = None
 RECEIVE_MESSAGE_DELEGATE_CLIENT: Callable[[str], None] | None = None
-RECEIVE_UNSENT_MESSAGE_DELEGATE: Callable[[], None] | None = None
+USER_NOT_SELECTED_MESSAGE_DELEGATE: Callable[[], None] | None = None
+GET_SELECTED_USER_NAME: Callable[[], str] | None = None
 
 
 def set_port(port: int) -> None:
@@ -34,15 +35,20 @@ def set_target_port(target_port: int) -> None:
 
 def handle_message(message_dict: dict) -> None:
     if message_dict['target_port'] == PORT:
+        username = DatabaseClient.users_collection.find_one({'port': message_dict['sender_port']})['user_name']
+        if username not in Data.chats:
+            Data.chats[username] = []
+        USER_NOT_SELECTED_MESSAGE_DELEGATE()
+
         if 'unsent' in message_dict:
-            username = DatabaseClient.users_collection.find_one({'port': message_dict['sender_port']})['user_name']
-            if username not in Data.chats:
-                Data.chats[username] = []
             Data.chats[username].append({'sender': 'target', 'message': message_dict['message']})
             Data.save_data(f'{PORT}.bin')
-            RECEIVE_UNSENT_MESSAGE_DELEGATE()
             return
-        RECEIVE_MESSAGE_DELEGATE_TARGET(message_dict['message'])
+        if GET_SELECTED_USER_NAME() == username:
+            RECEIVE_MESSAGE_DELEGATE_TARGET(message_dict['message'])
+        else:
+            Data.chats[username].append({'sender': 'target', 'message': message_dict['message']})
+            Data.save_data(f'{PORT}.bin')
     else:
         RECEIVE_MESSAGE_DELEGATE_CLIENT(message_dict['message'])
 
@@ -77,13 +83,15 @@ def send(message: str) -> None:
 
 def start(receive_message_delegate_target: Callable[[str], None],
           receive_message_delegate_client: Callable[[str], None],
-          receive_unsent_message_delegate: Callable[[], None]) -> None:
+          user_not_selected_message_delegate: Callable[[], None],
+          get_selected_user_name: Callable[[], None]) -> None:
     global PORT, TARGET_PORT, HOST, client, RECEIVE_MESSAGE_DELEGATE_TARGET, RECEIVE_MESSAGE_DELEGATE_CLIENT
-    global RECEIVE_UNSENT_MESSAGE_DELEGATE
+    global USER_NOT_SELECTED_MESSAGE_DELEGATE, GET_SELECTED_USER_NAME
 
     RECEIVE_MESSAGE_DELEGATE_TARGET = receive_message_delegate_target
     RECEIVE_MESSAGE_DELEGATE_CLIENT = receive_message_delegate_client
-    RECEIVE_UNSENT_MESSAGE_DELEGATE = receive_unsent_message_delegate
+    USER_NOT_SELECTED_MESSAGE_DELEGATE = user_not_selected_message_delegate
+    GET_SELECTED_USER_NAME = get_selected_user_name
 
     HOST = '127.0.0.1'
 
