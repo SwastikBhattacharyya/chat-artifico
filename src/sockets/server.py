@@ -1,9 +1,11 @@
 from socket import socket, AF_INET, SOCK_STREAM, error
 from threading import Thread
 from json import loads, dumps
+from pprint import pprint
 
 HOST = '127.0.0.1'
 PORT = 5000
+is_running = True
 
 server: socket = socket(AF_INET, SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -56,18 +58,41 @@ def handle_client(client: socket) -> None:
 
 def receive() -> None:
     while True:
-        client, address = server.accept()
-        clients.append(client)
-        connected_ports.append(address[1])
-        print(f'Connected with {address}')
+        try:
+            client, address = server.accept()
+            clients.append(client)
+            connected_ports.append(address[1])
 
-        if address[1] in unsent_messages:
-            for message in unsent_messages[address[1]]:
-                broadcast_unsent(message)
-            unsent_messages.pop(address[1])
-        thread = Thread(target=handle_client, args=(client,))
-        thread.start()
+            if address[1] in unsent_messages:
+                for message in unsent_messages[address[1]]:
+                    broadcast_unsent(message)
+                unsent_messages.pop(address[1])
+            thread = Thread(target=handle_client, args=(client,))
+            thread.start()
+        except error:
+            break
+
+
+def command_line() -> None:
+    while True:
+        command: str = input('>>> ')
+        if command == 'quit':
+            server.close()
+            print('Server closed')
+            exit(0)
+        elif command == 'length clients':
+            print(len(clients))
+        elif command == 'list clients':
+            pprint(connected_ports)
+        elif command == 'length unsent':
+            print(len(unsent_messages))
+        elif command == 'list unsent':
+            pprint(unsent_messages)
 
 
 if __name__ == '__main__':
-    receive()
+    print('Server started')
+    receive_thread = Thread(target=receive)
+    receive_thread.start()
+    command_line_thread = Thread(target=command_line)
+    command_line_thread.start()
