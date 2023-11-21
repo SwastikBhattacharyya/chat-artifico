@@ -34,14 +34,14 @@ class ChatView(CTkToplevel):
         self.add_contact_user_name: CTkLabel = CTkLabel(self.add_contact_frame, text='User Name', font=('Roboto', 20))
         self.add_contact_user_name.place(relx=0.05, rely=0.45, anchor='w')
 
-        self.add_contact_user_name_entry: CTkEntry = CTkEntry(self.add_contact_frame, font=('Roboto', 15))
+        self.add_contact_user_name_entry: CTkEntry = CTkEntry(self.add_contact_frame, font=('Roboto', 15),
+                                                              textvariable=self.account_view_model.add_contact_user_name
+                                                              )
         self.add_contact_user_name_entry.place(relx=0.95, rely=0.45, anchor='e')
 
         self.add_contact_button: CTkButton = CTkButton(self.add_contact_frame, text='Add', font=('Roboto', 15),
                                                        fg_color='#badc58', hover_color='#6ab04c', text_color='#130f40',
-                                                       command=lambda: self.account_view_model.add_contact(
-                                                           self.add_contact_user_name_entry.get()
-                                                       ))
+                                                       command=self.account_view_model.add_contact)
         self.add_contact_button.place(relx=0.5, rely=0.95, anchor='s')
 
         self.contacts_list_frame: CTkScrollableFrame = CTkScrollableFrame(self, fg_color='#535c68', width=300,
