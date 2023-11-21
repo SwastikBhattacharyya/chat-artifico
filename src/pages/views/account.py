@@ -63,3 +63,7 @@ class AccountView(CTk):
                                                    text='Sign Up', font=('Roboto', 15), fg_color='#7ed6df',
                                                    hover_color='#22a6b3', text_color='#130f40', height=40)
         self.sing_up_button.pack(padx=10, pady=(20, 5), expand=True, fill='x')
+
+        self.bind('<Return>',
+                  lambda _: self.sing_in_button.invoke() if self.tab_view.get() == 'Sign In'
+                  else self.sing_up_button.invoke())
