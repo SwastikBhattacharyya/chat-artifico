@@ -14,6 +14,7 @@ running: bool = True
 
 RECEIVE_MESSAGE_DELEGATE_TARGET: Callable[[str], None] | None = None
 RECEIVE_MESSAGE_DELEGATE_CLIENT: Callable[[str], None] | None = None
+RECEIVE_UNSENT_MESSAGE_DELEGATE: Callable[[], None] | None = None
 
 
 def set_port(port: int) -> None:
@@ -39,6 +40,7 @@ def handle_message(message_dict: dict) -> None:
                 Data.chats[username] = []
             Data.chats[username].append({'sender': 'target', 'message': message_dict['message']})
             Data.save_data(f'{PORT}.bin')
+            RECEIVE_UNSENT_MESSAGE_DELEGATE()
             return
         RECEIVE_MESSAGE_DELEGATE_TARGET(message_dict['message'])
     else:
@@ -74,11 +76,14 @@ def send(message: str) -> None:
 
 
 def start(receive_message_delegate_target: Callable[[str], None],
-          receive_message_delegate_client: Callable[[str], None]) -> None:
+          receive_message_delegate_client: Callable[[str], None],
+          receive_unsent_message_delegate: Callable[[], None]) -> None:
     global PORT, TARGET_PORT, HOST, client, RECEIVE_MESSAGE_DELEGATE_TARGET, RECEIVE_MESSAGE_DELEGATE_CLIENT
+    global RECEIVE_UNSENT_MESSAGE_DELEGATE
 
     RECEIVE_MESSAGE_DELEGATE_TARGET = receive_message_delegate_target
     RECEIVE_MESSAGE_DELEGATE_CLIENT = receive_message_delegate_client
+    RECEIVE_UNSENT_MESSAGE_DELEGATE = receive_unsent_message_delegate
 
     HOST = '127.0.0.1'
 
