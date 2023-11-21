@@ -68,11 +68,23 @@ class ChatView(CTkToplevel):
 
         self.typing_button: CTkButton = CTkButton(self.typing_frame, text='Send', font=('Roboto', 15), corner_radius=0,
                                                   fg_color='#ffbe76', hover_color='#f0932b', text_color='#130f40',
-                                                  command=lambda: self.account_view_model.send_message(
-                                                      self.typing_entry.get('1.0', 'end-1c')))
+                                                  command=self.send_message)
         self.typing_button.place(relx=0.8, rely=0.5, relheight=1, relwidth=0.2, anchor='w')
+
+        # bind the enter key to the send_message function and then remove the newline character
+        self.typing_entry.bind('<Return>', lambda event: self.send_message())
+        self.typing_entry.bind('<KeyRelease-Return>', lambda event: self.typing_entry.delete(
+            'end-1c', 'end'))
 
         self.account_view_model.frame = self.messages_frame
         self.account_view_model.contacts_list_frame = self.contacts_list_frame
 
         self.account_view_model.load_contacts()
+
+    def send_message(self):
+        message = self.typing_entry.get('1.0', 'end-1c')
+        if len(message) == 0:
+            return
+
+        self.account_view_model.send_message(message)
+        self.typing_entry.delete('1.0', 'end-1c')
