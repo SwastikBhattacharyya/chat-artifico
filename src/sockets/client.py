@@ -1,7 +1,9 @@
 from socket import socket, AF_INET, SOCK_STREAM, error
-from threading import Thread
 from json import dumps, loads
 from typing import Callable
+from src.database.database_client import DatabaseClient
+from src.data.data import Data
+from threading import Thread
 
 
 PORT: int | None = None
@@ -29,15 +31,32 @@ def set_target_port(target_port: int) -> None:
     TARGET_PORT = target_port
 
 
+def handle_message(message_dict: dict) -> None:
+    if message_dict['target_port'] == PORT:
+        if 'unsent' in message_dict:
+            username = DatabaseClient.users_collection.find_one({'port': message_dict['sender_port']})['user_name']
+            if username not in Data.chats:
+                Data.chats[username] = []
+            Data.chats[username].append({'sender': 'target', 'message': message_dict['message']})
+            Data.save_data(f'{PORT}.bin')
+            return
+        RECEIVE_MESSAGE_DELEGATE_TARGET(message_dict['message'])
+    else:
+        RECEIVE_MESSAGE_DELEGATE_CLIENT(message_dict['message'])
+
+
 def receive() -> None:
     while running:
         try:
             message = client.recv(1024)
-            message_dict = loads(message.decode('utf-8'))
-            if message_dict['target_port'] == PORT:
-                RECEIVE_MESSAGE_DELEGATE_TARGET(message_dict['message'])
-            else:
-                RECEIVE_MESSAGE_DELEGATE_CLIENT(message_dict['message'])
+            decoded_message = message.decode('utf-8')
+
+            messages = decoded_message.split('}')
+            messages = [loads(message + '}') for message in messages if message != '']
+
+            for message in messages:
+                handle_message(message)
+
         except error:
             client.close()
             break
