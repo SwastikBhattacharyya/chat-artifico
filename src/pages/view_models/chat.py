@@ -13,6 +13,7 @@ class ChatViewModel:
         start(self.create_chat_box_target, self.create_chat_box_client, self.load_contacts, self.get_selected_user_name)
         self.contact_name: StringVar = StringVar()
         self.created_contact_buttons_list: list[str] = []
+        self.add_contact_user_name: StringVar = StringVar()
         self.frame: CTkScrollableFrame | None = None
         self.contacts_list_frame: CTkScrollableFrame | None = None
         self.chat_boxes: list[CTkButton] = []
@@ -26,7 +27,7 @@ class ChatViewModel:
         exit(0)
 
     def send_message(self, message: str):
-        send(message)
+        send(message.strip())
 
     def enter_chat(self, user_name: str):
         self.destroy_chat_boxes()
@@ -47,7 +48,8 @@ class ChatViewModel:
             chat_box.destroy()
         self.chat_boxes = []
 
-    def add_contact(self, user_name: str):
+    def add_contact(self):
+        user_name: str = self.add_contact_user_name.get()
         if DatabaseClient.users_collection.find_one({'user_name': user_name}) is None:
             CTkMessagebox(title='Error', message='User not found', icon='cancel')
             return
@@ -70,6 +72,7 @@ class ChatViewModel:
         self.created_contact_buttons_list.append(user_name)
 
         button.pack(pady=(0, 1), expand=True, fill='x')
+        self.add_contact_user_name.set('')
 
     def create_chat_box_client(self, message: str, for_loading: bool = False):
         message = '\n'.join(wrap(message, 60))
