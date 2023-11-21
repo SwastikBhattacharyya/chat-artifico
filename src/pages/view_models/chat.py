@@ -10,12 +10,16 @@ from src.data.data import Data
 
 class ChatViewModel:
     def __init__(self):
-        start(self.create_chat_box_target, self.create_chat_box_client)
+        start(self.create_chat_box_target, self.create_chat_box_client, self.load_contacts, self.get_selected_user_name)
         self.contact_name: StringVar = StringVar()
+        self.created_contact_buttons_list: list[str] = []
         self.frame: CTkScrollableFrame | None = None
         self.contacts_list_frame: CTkScrollableFrame | None = None
         self.chat_boxes: list[CTkButton] = []
         self.selected_user_name: str | None = None
+
+    def get_selected_user_name(self) -> str | None:
+        return self.selected_user_name
 
     def stop_client(self):
         stop()
@@ -62,8 +66,8 @@ class ChatViewModel:
         Data.chats[user_name] = []
         Data.save_data(f'{client_port}.bin')
 
-        button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
-        button.configure(command=lambda: self.enter_chat(button.user_name))
+        button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name, self.enter_chat)
+        self.created_contact_buttons_list.append(user_name)
 
         button.pack(pady=(0, 1), expand=True, fill='x')
 
@@ -89,7 +93,9 @@ class ChatViewModel:
 
     def load_contacts(self):
         for user_name in Data.chats:
-            button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name)
-            button.configure(command=lambda: self.enter_chat(button.user_name))
+            if user_name in self.created_contact_buttons_list:
+                continue
 
+            button: UserChatButton = UserChatButton(self.contacts_list_frame, user_name, self.enter_chat)
             button.pack(pady=(0, 1), expand=True, fill='x')
+            self.created_contact_buttons_list.append(user_name)
